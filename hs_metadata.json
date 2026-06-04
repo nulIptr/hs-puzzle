@@ -1,0 +1,896 @@
+﻿{
+    "filter": {
+        "card_type_list": [
+            {
+                "name": "不限类型",
+                "name_en": "all",
+                "id": 0
+            },
+            {
+                "name": "英雄",
+                "name_en": "hero",
+                "id": 0
+            },
+            {
+                "name": "随从",
+                "name_en": "minion",
+                "id": 0
+            },
+            {
+                "name": "法术",
+                "name_en": "spell",
+                "id": 0
+            },
+            {
+                "name": "武器",
+                "name_en": "weapon",
+                "id": 0
+            },
+            {
+                "name": "地标",
+                "name_en": "location",
+                "id": 0
+            }
+        ],
+        "minion_type_list": [
+            {
+                "name": "亡灵",
+                "name_en": "undead",
+                "id": 0
+            },
+            {
+                "name": "德莱尼",
+                "name_en": "draenei",
+                "id": 0
+            },
+            {
+                "name": "恶魔",
+                "name_en": "demon",
+                "id": 0
+            },
+            {
+                "name": "海盗",
+                "name_en": "pirate",
+                "id": 0
+            },
+            {
+                "name": "机械",
+                "name_en": "mech",
+                "id": 0
+            },
+            {
+                "name": "龙",
+                "name_en": "dragon",
+                "id": 0
+            },
+            {
+                "name": "纳迦",
+                "name_en": "naga",
+                "id": 0
+            },
+            {
+                "name": "全部",
+                "name_en": "all",
+                "id": 0
+            },
+            {
+                "name": "图腾",
+                "name_en": "totem",
+                "id": 0
+            },
+            {
+                "name": "野兽",
+                "name_en": "beast",
+                "id": 0
+            },
+            {
+                "name": "野猪人",
+                "name_en": "quilboar",
+                "id": 0
+            },
+            {
+                "name": "鱼人",
+                "name_en": "murloc",
+                "id": 0
+            },
+            {
+                "name": "元素",
+                "name_en": "elemental",
+                "id": 0
+            }
+        ],
+        "keyword_list": [
+            {
+                "id": 0,
+                "name": "不限关键词",
+                "name_en": "all"
+            },
+            {
+                "id": 360,
+                "name": "进击",
+                "name_en": "progressive"
+            },
+            {
+                "id": 1,
+                "name": "嘲讽",
+                "name_en": "taunt%0A"
+            },
+            {
+                "id": 2,
+                "name": "法术伤害",
+                "name_en": "spell-damage%0A"
+            },
+            {
+                "id": 3,
+                "name": "圣盾",
+                "name_en": "divine-shield%0A"
+            },
+            {
+                "id": 4,
+                "name": "冲锋",
+                "name_en": "charge"
+            },
+            {
+                "id": 5,
+                "name": "奥秘",
+                "name_en": "secret%0A"
+            },
+            {
+                "id": 6,
+                "name": "潜行",
+                "name_en": "stealth%0A"
+            },
+            {
+                "id": 8,
+                "name": "战吼",
+                "name_en": "battlecry%0A"
+            },
+            {
+                "id": 10,
+                "name": "冻结",
+                "name_en": "freeze%0A"
+            },
+            {
+                "id": 11,
+                "name": "风怒",
+                "name_en": "windfury%0A"
+            },
+            {
+                "id": 12,
+                "name": "亡语",
+                "name_en": "deathrattle%0A"
+            },
+            {
+                "id": 13,
+                "name": "连击",
+                "name_en": "combo%0A"
+            },
+            {
+                "id": 14,
+                "name": "过载：X",
+                "name_en": "overload:-x%0A"
+            },
+            {
+                "id": 15,
+                "name": "沉默",
+                "name_en": "silence%0A"
+            },
+            {
+                "id": 16,
+                "name": "反制",
+                "name_en": "counter%0A"
+            },
+            {
+                "id": 17,
+                "name": "免疫",
+                "name_en": "immune"
+            },
+            {
+                "id": 19,
+                "name": "备用零件",
+                "name_en": "spare-parts%0A"
+            },
+            {
+                "id": 20,
+                "name": "激励",
+                "name_en": "inspire%0A"
+            },
+            {
+                "id": 21,
+                "name": "发现",
+                "name_en": "discover%0A"
+            },
+            {
+                "id": 31,
+                "name": "任务",
+                "name_en": "quest%0A"
+            },
+            {
+                "id": 32,
+                "name": "剧毒",
+                "name_en": "poisonous%0A"
+            },
+            {
+                "id": 34,
+                "name": "进化",
+                "name_en": "adapt%0A"
+            },
+            {
+                "id": 38,
+                "name": "吸血",
+                "name_en": "lifesteal%0A"
+            },
+            {
+                "id": 39,
+                "name": "招募",
+                "name_en": "recruit%0A"
+            },
+            {
+                "id": 52,
+                "name": "回响",
+                "name_en": "echo%0A"
+            },
+            {
+                "id": 53,
+                "name": "突袭",
+                "name_en": "rush%0A"
+            },
+            {
+                "id": 61,
+                "name": "超杀",
+                "name_en": "overkill%0A"
+            },
+            {
+                "id": 64,
+                "name": "对战开始时",
+                "name_en": "start-of-game%0A"
+            },
+            {
+                "id": 66,
+                "name": "磁力",
+                "name_en": "magnetic%0A"
+            },
+            {
+                "id": 71,
+                "name": "跟班",
+                "name_en": "lackey%0A"
+            },
+            {
+                "id": 76,
+                "name": "双生法术",
+                "name_en": "twinspell%0A"
+            },
+            {
+                "id": 77,
+                "name": "超级风怒",
+                "name_en": "mega-windfury%0A"
+            },
+            {
+                "id": 78,
+                "name": "复生",
+                "name_en": "reborn%0A"
+            },
+            {
+                "id": 79,
+                "name": "祈求",
+                "name_en": "invoke%0A"
+            },
+            {
+                "id": 86,
+                "name": "流放",
+                "name_en": "outcast%0A"
+            },
+            {
+                "id": 88,
+                "name": "法术迸发",
+                "name_en": "spellburst%0A"
+            },
+            {
+                "id": 89,
+                "name": "支线任务",
+                "name_en": "sidequest%0A"
+            },
+            {
+                "id": 91,
+                "name": "腐蚀",
+                "name_en": "corrupt%0A"
+            },
+            {
+                "id": 96,
+                "name": "任务线",
+                "name_en": "questline%0A"
+            },
+            {
+                "id": 97,
+                "name": "可交易",
+                "name_en": "tradeable%0A"
+            },
+            {
+                "id": 99,
+                "name": "暴怒",
+                "name_en": "frenzy%0A"
+            },
+            {
+                "id": 100,
+                "name": "荣誉消灭",
+                "name_en": "honorable-kill%0A"
+            },
+            {
+                "id": 104,
+                "name": "自然法术伤害",
+                "name_en": "nature-spell-damage%0A"
+            },
+            {
+                "id": 109,
+                "name": "鲜血宝石",
+                "name_en": "blood-gem%0A"
+            },
+            {
+                "id": 196,
+                "name": "刷新",
+                "name_en": "refresh%0A"
+            },
+            {
+                "id": 198,
+                "name": "复仇（X）",
+                "name_en": "avenge-(x)%0A"
+            },
+            {
+                "id": 231,
+                "name": "巨型+X",
+                "name_en": "colossal-+x%0A"
+            },
+            {
+                "id": 232,
+                "name": "探底",
+                "name_en": "dredge%0A"
+            },
+            {
+                "id": 234,
+                "name": "塑造法术",
+                "name_en": "spellcraft%0A"
+            },
+            {
+                "id": 238,
+                "name": "注能",
+                "name_en": "infuse%0A"
+            },
+            {
+                "id": 247,
+                "name": "残骸",
+                "name_en": "corpse%0A"
+            },
+            {
+                "id": 255,
+                "name": "压轴",
+                "name_en": "finale%0A"
+            },
+            {
+                "id": 256,
+                "name": "过量治疗",
+                "name_en": "overheal%0A"
+            },
+            {
+                "id": 257,
+                "name": "法力渴求（X）",
+                "name_en": "manathirst-(x)%0A"
+            },
+            {
+                "id": 261,
+                "name": "烈毒",
+                "name_en": "venomous%0A"
+            },
+            {
+                "id": 265,
+                "name": "扰魔",
+                "name_en": "elusive"
+            },
+            {
+                "id": 266,
+                "name": "锻造",
+                "name_en": "forge\t\t%0A"
+            },
+            {
+                "id": 270,
+                "name": "泰坦",
+                "name_en": "titan%0A"
+            },
+            {
+                "id": 294,
+                "name": "微缩",
+                "name_en": "miniaturize"
+            },
+            {
+                "id": 295,
+                "name": "微型",
+                "name_en": "mini"
+            },
+            {
+                "id": 297,
+                "name": "快枪",
+                "name_en": "quickdraw%0A"
+            },
+            {
+                "id": 298,
+                "name": "发掘",
+                "name_en": "excavate%0A"
+            },
+            {
+                "id": 300,
+                "name": "传递",
+                "name_en": "pass"
+            },
+            {
+                "id": 303,
+                "name": "伙伴",
+                "name_en": "buddy"
+            },
+            {
+                "id": 318,
+                "name": "灌注",
+                "name_en": "imbue"
+            },
+            {
+                "id": 319,
+                "name": "黑暗之赐",
+                "name_en": "dark-gift"
+            },
+            {
+                "id": 320,
+                "name": "临时",
+                "name_en": "temporary"
+            },
+            {
+                "id": 323,
+                "name": "星舰",
+                "name_en": "starship"
+            },
+            {
+                "id": 351,
+                "name": "延系",
+                "name_en": "kindred"
+            }
+        ],
+        "spell_school_list": [
+            {
+                "id": 0,
+                "name": "任意系别",
+                "name_en": "all"
+            },
+            {
+                "id": 0,
+                "name": "奥术",
+                "name_en": "arcane"
+            },
+            {
+                "id": 0,
+                "name": "火焰",
+                "name_en": "fire"
+            },
+            {
+                "id": 0,
+                "name": "冰霜",
+                "name_en": "frost"
+            },
+            {
+                "id": 0,
+                "name": "自然",
+                "name_en": "nature"
+            },
+            {
+                "id": 0,
+                "name": "神圣",
+                "name_en": "holy"
+            },
+            {
+                "id": 0,
+                "name": "暗影",
+                "name_en": "shadow"
+            },
+            {
+                "id": 0,
+                "name": "邪能",
+                "name_en": "fel"
+            }
+        ],
+        "faction_list": [
+            {
+                "id": 0,
+                "name": "所有阵营",
+                "name_en": "all"
+            },
+            {
+                "id": 0,
+                "name": "污手党",
+                "name_en": "grimy_goons"
+            },
+            {
+                "id": 0,
+                "name": "玉莲帮",
+                "name_en": "jade_lotus"
+            },
+            {
+                "id": 0,
+                "name": "暗金教",
+                "name_en": "kabal"
+            },
+            {
+                "id": 0,
+                "name": "异虫",
+                "name_en": "zerg"
+            },
+            {
+                "id": 0,
+                "name": "人族",
+                "name_en": "terran"
+            },
+            {
+                "id": 0,
+                "name": "星灵",
+                "name_en": "protoss"
+            }
+        ],
+        "rarity_list": [
+            {
+                "id": 0,
+                "name": "不限稀有度",
+                "name_en": "all"
+            },
+            {
+                "id": 0,
+                "name": "普通",
+                "name_en": "common"
+            },
+            {
+                "id": 0,
+                "name": "免费",
+                "name_en": "free"
+            },
+            {
+                "id": 0,
+                "name": "稀有",
+                "name_en": "rare"
+            },
+            {
+                "id": 0,
+                "name": "史诗",
+                "name_en": "epic"
+            },
+            {
+                "id": 0,
+                "name": "传说",
+                "name_en": "legendary"
+            }
+        ]
+    },
+    "class": {
+        "list": [
+            {
+                "id": 0,
+                "name": "全部职业",
+                "name_en": "all"
+            },
+            {
+                "id": 0,
+                "name": "死亡骑士",
+                "name_en": "deathknight"
+            },
+            {
+                "id": 0,
+                "name": "恶魔猎手",
+                "name_en": "demonhunter"
+            },
+            {
+                "id": 0,
+                "name": "德鲁伊",
+                "name_en": "druid"
+            },
+            {
+                "id": 0,
+                "name": "猎人",
+                "name_en": "hunter"
+            },
+            {
+                "id": 0,
+                "name": "法师",
+                "name_en": "mage"
+            },
+            {
+                "id": 0,
+                "name": "圣骑士",
+                "name_en": "paladin"
+            },
+            {
+                "id": 0,
+                "name": "牧师",
+                "name_en": "priest"
+            },
+            {
+                "id": 0,
+                "name": "潜行者",
+                "name_en": "rogue"
+            },
+            {
+                "id": 0,
+                "name": "萨满祭司",
+                "name_en": "shaman"
+            },
+            {
+                "id": 0,
+                "name": "术士",
+                "name_en": "warlock"
+            },
+            {
+                "id": 0,
+                "name": "战士",
+                "name_en": "warrior"
+            },
+            {
+                "id": 0,
+                "name": "中立",
+                "name_en": "neutral"
+            }
+        ]
+    },
+    "set": {
+        "list": [
+            {
+                "name": "标准卡牌",
+                "name_en": "standard",
+                "subcategories": [
+                    {
+                        "id": 1980,
+                        "name": "大地的裂变",
+                        "name_en": "cataclysm"
+                    },
+                    {
+                        "id": 1957,
+                        "name": "穿越时间流",
+                        "name_en": "across-the-timeways"
+                    },
+                    {
+                        "id": 1952,
+                        "name": "安戈洛龟途",
+                        "name_en": "the-lost-city-of-ungoro"
+                    },
+                    {
+                        "id": 1946,
+                        "name": "漫游翡翠梦境",
+                        "name_en": "into-the-emerald-dream"
+                    },
+                    {
+                        "id": 1941,
+                        "name": "活动",
+                        "name_en": "event"
+                    },
+                    {
+                        "id": 1637,
+                        "name": "核心",
+                        "name_en": "core"
+                    }
+                ]
+            },
+            {
+                "name": "狂野卡牌",
+                "name_en": "wild",
+                "subcategories": [
+                    {
+                        "id": 1935,
+                        "name": "深暗领域",
+                        "name_en": "the-great-dark-beyond"
+                    },
+                    {
+                        "id": 1905,
+                        "name": "胜地历险记",
+                        "name_en": "perils-in-paradise"
+                    },
+                    {
+                        "id": 1897,
+                        "name": "威兹班的工坊",
+                        "name_en": "whizbangs-workshop"
+                    },
+                    {
+                        "id": 1892,
+                        "name": "决战荒芜之地",
+                        "name_en": "showdown-in-the-badlands"
+                    },
+                    {
+                        "id": 1858,
+                        "name": "泰坦诸神",
+                        "name_en": "titans"
+                    },
+                    {
+                        "id": 1809,
+                        "name": "传奇音乐节",
+                        "name_en": "festival-of-legends"
+                    },
+                    {
+                        "id": 1941,
+                        "name": "活动",
+                        "name_en": "event"
+                    },
+                    {
+                        "id": 1946,
+                        "name": "漫游翡翠梦境",
+                        "name_en": "into-the-emerald-dream"
+                    },
+                    {
+                        "id": 1957,
+                        "name": "穿越时间流",
+                        "name_en": "across-the-timeways"
+                    },
+                    {
+                        "id": 1980,
+                        "name": "大地的裂变",
+                        "name_en": "cataclysm"
+                    },
+                    {
+                        "id": 1952,
+                        "name": "安戈洛龟途",
+                        "name_en": "the-lost-city-of-ungoro"
+                    },
+                    {
+                        "id": 1898,
+                        "name": "时光之穴",
+                        "name_en": "caverns-of-time"
+                    },
+                    {
+                        "id": 1776,
+                        "name": "巫妖王的进军",
+                        "name_en": "march-of-the-lich-king"
+                    },
+                    {
+                        "id": 1869,
+                        "name": "阿尔萨斯之路",
+                        "name_en": "path-of-arthas"
+                    },
+                    {
+                        "id": 1691,
+                        "name": "纳斯利亚堡的悬案",
+                        "name_en": "murder-at-castle-nathria"
+                    },
+                    {
+                        "id": 1658,
+                        "name": "探寻沉没之城",
+                        "name_en": "voyage-to-the-sunken-city"
+                    },
+                    {
+                        "id": 1626,
+                        "name": "奥特兰克的决裂",
+                        "name_en": "fractured-in-alterac-valley"
+                    },
+                    {
+                        "id": 1578,
+                        "name": "暴风城下的集结",
+                        "name_en": "united-in-stormwind"
+                    },
+                    {
+                        "id": 1525,
+                        "name": "贫瘠之地的锤炼",
+                        "name_en": "forged-in-the-barrens"
+                    },
+                    {
+                        "id": 1466,
+                        "name": "疯狂的暗月马戏团",
+                        "name_en": "madness-at-the-darkmoon-faire"
+                    },
+                    {
+                        "id": 1443,
+                        "name": "通灵学园",
+                        "name_en": "scholomance-academy"
+                    },
+                    {
+                        "id": 1414,
+                        "name": "外域的灰烬",
+                        "name_en": "ashes-of-outland"
+                    },
+                    {
+                        "id": 1463,
+                        "name": "恶魔猎手新兵",
+                        "name_en": "demonhunter-initiate"
+                    },
+                    {
+                        "id": 1403,
+                        "name": "迦拉克隆的觉醒",
+                        "name_en": "galakronds-awakening"
+                    },
+                    {
+                        "id": 1347,
+                        "name": "巨龙降临",
+                        "name_en": "descent-of-dragons"
+                    },
+                    {
+                        "id": 1158,
+                        "name": "奥丹姆奇兵",
+                        "name_en": "saviors-of-uldum"
+                    },
+                    {
+                        "id": 1130,
+                        "name": "暗影崛起",
+                        "name_en": "rise-of-shadows"
+                    },
+                    {
+                        "id": 1129,
+                        "name": "拉斯塔哈的大乱斗",
+                        "name_en": "rastakhans-rumble"
+                    },
+                    {
+                        "id": 1127,
+                        "name": "砰砰计划",
+                        "name_en": "the-boomsday-project"
+                    },
+                    {
+                        "id": 1125,
+                        "name": "女巫森林",
+                        "name_en": "the-witchwood"
+                    },
+                    {
+                        "id": 1004,
+                        "name": "狗头人与地下城",
+                        "name_en": "kobolds-and-catacombs"
+                    },
+                    {
+                        "id": 1001,
+                        "name": "冰封王座的骑士",
+                        "name_en": "knights-of-the-frozen-throne"
+                    },
+                    {
+                        "id": 27,
+                        "name": "勇闯安戈洛",
+                        "name_en": "journey-to-ungoro"
+                    },
+                    {
+                        "id": 25,
+                        "name": "龙争虎斗加基森",
+                        "name_en": "mean-streets-of-gadgetzan"
+                    },
+                    {
+                        "id": 23,
+                        "name": "卡拉赞之夜",
+                        "name_en": "one-night-in-karazhan"
+                    },
+                    {
+                        "id": 21,
+                        "name": "上古之神的低语",
+                        "name_en": "whispers-of-the-old-gods"
+                    },
+                    {
+                        "id": 20,
+                        "name": "探险者协会",
+                        "name_en": "league-of-explorers"
+                    },
+                    {
+                        "id": 15,
+                        "name": "冠军的试炼",
+                        "name_en": "the-grand-tournament"
+                    },
+                    {
+                        "id": 14,
+                        "name": "黑石山的火焰",
+                        "name_en": "blackrock-mountain"
+                    },
+                    {
+                        "id": 13,
+                        "name": "地精大战侏儒",
+                        "name_en": "goblins-vs-gnomes"
+                    },
+                    {
+                        "id": 12,
+                        "name": "纳克萨玛斯的诅咒",
+                        "name_en": "naxxramas"
+                    },
+                    {
+                        "id": 1637,
+                        "name": "核心",
+                        "name_en": "core"
+                    },
+                    {
+                        "id": 1635,
+                        "name": "怀旧",
+                        "name_en": "legacy"
+                    }
+                ]
+            }
+        ]
+    }
+}

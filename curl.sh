@@ -1,0 +1,15 @@
+curl ^"https://webapi.blizzard.cn/hs-cards-api-server/api/web/cards/constructed^" ^
+  -H ^"accept: application/json, text/javascript, */*; q=0.01^" ^
+  -H ^"accept-language: zh-CN,zh;q=0.9,en;q=0.8^" ^
+  -H ^"content-type: application/json^" ^
+  -H ^"origin: https://hs.blizzard.cn^" ^
+  -H ^"priority: u=1, i^" ^
+  -H ^"referer: https://hs.blizzard.cn/^" ^
+  -H ^"sec-ch-ua: ^\^"Chromium^\^";v=^\^"148^\^", ^\^"Google Chrome^\^";v=^\^"148^\^", ^\^"Not/A)Brand^\^";v=^\^"99^\^"^" ^
+  -H ^"sec-ch-ua-mobile: ?0^" ^
+  -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+  -H ^"sec-fetch-dest: empty^" ^
+  -H ^"sec-fetch-mode: cors^" ^
+  -H ^"sec-fetch-site: same-site^" ^
+  -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36^" ^
+  --data-raw ^"^{^\^"page^\^":1,^\^"page_size^\^":200,^\^"class^\^":^\^"all^\^",^\^"mana_cost^\^":^[^],^\^"sort^\^":^\^"manaCost:asc^\^",^\^"set^\^":^\^"standard^\^",^\^"text_filter^\^":^\^"^\^",^\^"attack^\^":-1,^\^"faction^\^":^\^"^\^",^\^"health^\^":-1,^\^"keyword^\^":^\^"^\^",^\^"minion_type^\^":^\^"^\^",^\^"rarity^\^":^\^"^\^",^\^"spell_school^\^":^\^"^\^",^\^"type^\^":^\^"^\^"^}^"
