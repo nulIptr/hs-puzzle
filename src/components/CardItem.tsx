@@ -1,68 +1,54 @@
-
 import React from 'react';
-import { Card } from '../types';
-import { METADATA } from '../data/metadata';
+import type { Card } from '../types';
 
 interface CardItemProps {
   card: Card;
-  onClick: () => void;
+  onClick?: () => void;
+  compact?: boolean;
 }
 
-export const CardItem: React.FC<CardItemProps> = ({ card, onClick }) => {
-  const className = METADATA.classes[card.class_id] || '未知';
-  const rarityName = METADATA.rarities[card.rarity_id] || '未知';
-  const minionTypeName = card.minion_type_id > 0 ? METADATA.minionTypes[card.minion_type_id] || '未知' : '无';
-
+export const CardItem: React.FC<CardItemProps> = ({ card, onClick, compact }) => {
   return (
     <div
       onClick={onClick}
       style={{
-        background: 'white',
-        borderRadius: '8px',
-        padding: '12px',
-        cursor: 'pointer',
-        border: '1px solid #e0e0e0',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
+        position: 'relative',
+        width: compact ? 160 : 180,
+        height: compact ? 232 : 261,
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        // boxShadow: '0 4px 10px rgba(0,0,0,0.4)',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        if (onClick) {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          // e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.5)';
+        }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'none';
+        if (onClick) {
+          e.currentTarget.style.transform = 'translateY(0)';
+          // e.currentTarget.style.boxShadow = '';
+        }
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <strong>{card.name}</strong>
-        <span style={{ color: '#1890ff' }}>{card.mana_cost}费</span>
-      </div>
-      {card.image && (
+      {card.image ? (
         <img
           src={card.image}
           alt={card.name}
+          loading="lazy"
+          decoding="async"
+          // 视口外的图片延后加载；decoding=async 避免阻塞首屏绘制
           style={{
             width: '100%',
-            height: 'auto',
-            borderRadius: '4px',
-            maxHeight: '200px',
-            objectFit: 'contain',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
           }}
         />
+      ) : (
+        <div style={{ color: '#666', fontSize: 12 }}>无图</div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-        <span style={{ color: '#52c41a' }}>攻: {card.attack || 0}</span>
-        <span style={{ color: '#f5222d' }}>血: {card.health}</span>
-      </div>
-      <div style={{ fontSize: '12px', color: '#666' }}>
-        <div>职业: {className}</div>
-        <div>种族: {minionTypeName}</div>
-        <div>稀有度: {rarityName}</div>
-      </div>
     </div>
   );
 };
-

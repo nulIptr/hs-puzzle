@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rsbuild build",
+    "split:cards": "node scripts/split-cards.mjs",
+    "predev": "bun run split:cards",
+    "prebuild": "bun run split:cards",
     "dev": "rsbuild --open",
+    "build": "rsbuild build",
     "preview": "rsbuild preview"
   },
   "dependencies": {

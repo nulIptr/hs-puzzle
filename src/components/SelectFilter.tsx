@@ -14,8 +14,16 @@ export const SelectFilter = <T extends string | number>({
   options,
   onChange,
 }: SelectFilterProps<T>) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-    <label style={{ fontSize: '12px', fontWeight: '600', color: '#333' }}>{label}</label>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <label
+      style={{
+        fontSize: 11,
+        fontWeight: 600,
+        color: '#ffd966',
+      }}
+    >
+      {label}
+    </label>
     <select
       value={value ?? ''}
       onChange={(e) => {
@@ -23,19 +31,21 @@ export const SelectFilter = <T extends string | number>({
         onChange(val === '' ? null : (val as T));
       }}
       style={{
-        padding: '6px 8px',
-        borderRadius: '4px',
-        border: '1px solid #d9d9d9',
-        fontSize: '14px',
+        padding: '5px 8px',
+        borderRadius: 4,
+        border: '1px solid #5a3a1a',
+        fontSize: 12,
+        background: '#1a1208',
+        color: '#f4e4bc',
+        outline: 'none',
       }}
     >
       <option value="">全部</option>
       {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
+        <option key={String(opt.value)} value={String(opt.value)}>
           {opt.label}
         </option>
       ))}
     </select>
   </div>
 );
-

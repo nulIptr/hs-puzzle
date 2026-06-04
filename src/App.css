@@ -1,26 +1,95 @@
+/* Hearthstone 卡牌浏览器风格 - 主题色 */
+:root {
+  --hs-bg: #d4b886;
+  --hs-bg-gradient-top: #e0c89a;
+  --hs-bg-gradient-bottom: #c5a878;
+  --hs-panel: #2a1f17;
+  --hs-panel-light: #3a2c1f;
+  --hs-gold: #f0b850;
+  --hs-gold-bright: #ffd966;
+  --hs-text: #f4e4bc;
+  --hs-text-dark: #1a1208;
+  --hs-chip-bg: #1f1810;
+  --hs-chip-active: #5b3a1f;
+  --hs-mana-blue: #1e7ce0;
+  --hs-mana-blue-glow: #4ea8ff;
+  --hs-attack-red: #c4302b;
+  --hs-health-red: #c4302b;
+  --hs-legendary: #d2691e;
+  --hs-epic: #9b59b6;
+  --hs-rare: #3498db;
+  --hs-common: #95a5a6;
+  --hs-border: #5a3a1a;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
 body {
   margin: 0;
-  color: #fff;
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  background-image: linear-gradient(to bottom, #020917, #101725);
+  color: var(--hs-text);
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', Inter,
+    Avenir, Helvetica, Arial, sans-serif;
+  background: linear-gradient(
+    to bottom,
+    var(--hs-bg-gradient-top) 0%,
+    var(--hs-bg) 30%,
+    var(--hs-bg-gradient-bottom) 100%
+  );
+  background-attachment: fixed;
 }
 
-.content {
-  display: flex;
-  min-height: 100vh;
-  line-height: 1.1;
-  text-align: center;
-  flex-direction: column;
-  justify-content: center;
+* {
+  box-sizing: border-box;
 }
 
-.content h1 {
-  font-size: 3.6rem;
-  font-weight: 700;
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hs-gold);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hs-gold-bright);
 }
 
-.content p {
-  font-size: 1.2rem;
-  font-weight: 400;
-  opacity: 0.5;
+/* 反馈提示与庆祝层动画 */
+@keyframes hs-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes hs-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes hs-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

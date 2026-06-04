@@ -1,18 +1,16 @@
-
-// 卡牌类型定义
 export interface Card {
   id: number;
   collectible: number;
   slug: string;
-  class_id: number;
-  multi_class_ids: number[];
-  minion_type_id: number;
-  card_type_id: number;
+  class_id: string;
+  multi_class_ids: string[];
+  minion_type_id: string;
+  card_type_id: string;
   card_set_id: number;
-  rarity_id: number;
+  rarity_id: string;
   artist_name: string;
   health: number;
-  attack: number | null;
+  attack: number;
   mana_cost: number;
   name: string;
   text: string;
@@ -20,18 +18,13 @@ export interface Card {
   image_gold: string;
   flavor_text: string;
   crop_image: string;
-  child_ids: number[] | null;
-  bundledCardIds: number[] | null;
-  is_zilliax_functional_module: boolean;
-  is_zilliax_cosmetic_module: boolean;
-  keyword_ids: number[] | null;
-  parent_id: number;
-  tourist_class_id: number;
+  child_ids?: number[];
+  keyword_ids: any;
   runeCost: { blood: number; frost: number; unholy: number };
-  factionId: number | null;
-  spellSchoolId: number;
-  set_priority: number;
-  class_priority: number;
+  standard: number;
+  wild: number;
+  series_name: string;
+  series_abbr: string;
 }
 
 export interface Hint {
@@ -43,6 +36,7 @@ export interface Hint {
 export type HintType = 'mana_cost' | 'attack' | 'health' | 'class_id' | 'minion_type_id' | 'card_set_id' | 'rarity_id';
 
 export interface GuessResult {
+  id: string;
   card: Card;
   matchCount: number;
   details: {
@@ -57,20 +51,37 @@ export interface GuessResult {
   };
 }
 
+export type GameMode = 'standard' | 'wild';
+
+export interface RoundResult {
+  card: Card;
+  hintCount: number;
+  guessCount: number;
+}
+
+export interface HistoryEntry {
+  id: string;
+  finishedAt: number;
+  gameMode: GameMode;
+  score: number;
+  totalHints: number;
+  totalGuesses: number;
+  rounds: RoundResult[];
+}
+
 export interface FilterState {
   mana_cost: number | null;
-  class_id: number | null;
-  minion_type_id: number | null;
-  rarity_id: number | null;
+  class_id: string | null;
+  minion_type_id: string | null;
+  rarity_id: string | null;
   card_set_id: number | null;
   attack: number | null;
   health: number | null;
+  excluded_mana_costs: number[];
+  excluded_class_ids: string[];
+  excluded_minion_type_ids: string[];
+  excluded_rarity_ids: string[];
+  excluded_card_set_ids: number[];
+  excluded_attacks: number[];
+  excluded_healths: number[];
 }
-
-export interface Metadata {
-  classes: Record<number, string>;
-  rarities: Record<number, string>;
-  minionTypes: Record<number, string>;
-  cardSets: Record<number, string>;
-}
-
