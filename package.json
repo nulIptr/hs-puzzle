@@ -9,7 +9,9 @@
     "prebuild": "bun run split:cards",
     "dev": "rsbuild --open",
     "build": "rsbuild build",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "deploy:cf": "pwsh scripts/deploy-cf.ps1 -Action deploy",
+    "deploy:cf:guide": "pwsh scripts/deploy-cf.ps1 -Action guide"
   },
   "dependencies": {
     "react": "^19.2.6",
