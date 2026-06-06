@@ -11,6 +11,7 @@ import { RulesModal } from './RulesModal';
 import type { Card, GameMode, HistoryEntry } from '../types';
 import { getPlayableCards, loadMinionCards } from '../data';
 import { Classes, MinionTypes, Rarities, Series } from '../data/metadata';
+import { useNavigate } from 'react-router-dom';
 
 declare global {
   interface Window {
@@ -22,6 +23,7 @@ declare global {
 }
 
 export const GameBoard: React.FC = () => {
+  const navigate = useNavigate();
   const [gameMode, setGameMode] = React.useState<GameMode>('standard');
   const [pendingMode, setPendingMode] = React.useState<GameMode | null>(null);
   const [historyOpen, setHistoryOpen] = React.useState(false);
@@ -398,6 +400,23 @@ export const GameBoard: React.FC = () => {
           >
             📜 历史{history.length > 0 ? ` (${history.length})` : ''}
           </button>
+          <button
+            onClick={() => navigate('/leaderboard')}
+            title="查看全服排行榜"
+            style={{
+              padding: '4px 14px',
+              background: 'linear-gradient(to bottom, #ffd966, #b87a2a)',
+              color: '#1a1208',
+              border: '1px solid #5a3a1a',
+              borderRadius: 14,
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 700,
+              textShadow: '0 1px 0 rgba(255,255,255,0.3)',
+            }}
+          >
+            🏆 排行榜
+          </button>
           <div
             role="group"
             aria-label="游戏模式"
@@ -497,8 +516,10 @@ export const GameBoard: React.FC = () => {
         totalGuesses={totalGuesses}
         rounds={roundResults}
         abandoned={abandoned}
+        gameMode={gameMode}
         onRestart={handleNewGame}
         onShowHistory={() => setHistoryOpen(true)}
+        onNavigateLeaderboard={() => navigate('/leaderboard')}
       />
 
       <HistoryModal

@@ -94,15 +94,24 @@ hs-puzzle/
     │   ├── useGameState.ts    # 核心：游戏状态机（回合/分数/放弃）
     │   ├── useFilteredCards.ts
     │   └── useHistory.ts      # localStorage 历史记录
-    └── components/
-        ├── GameBoard.tsx      # 顶层游戏界面
-        ├── CardSelector.tsx   # 候选卡牌网格
-        ├── CardItem.tsx       # 单张卡牌渲染
-        ├── HintPanel.tsx      # 7 类提示按钮 + 已揭示面板
-        ├── GuessHistory.tsx   # 实时猜测历史
-        ├── RulesModal.tsx     # 游戏规则弹窗（首启自动弹出）
-        ├── HistoryModal.tsx   # 历史记录 + 本局实时数据
-        └── GameOverModal.tsx  # 结算界面
+    ├── lib/
+    │   ├── username.ts        # 排行榜用户名 localStorage 工具
+    │   └── leaderboardApi.ts  # 排行榜 fetch/submit 封装 + GAME_VERSION
+    ├── components/
+    │   ├── GameBoard.tsx      # 顶层游戏界面
+    │   ├── CardSelector.tsx   # 候选卡牌网格
+    │   ├── CardItem.tsx       # 单张卡牌渲染
+    │   ├── HintPanel.tsx      # 7 类提示按钮 + 已揭示面板
+    │   ├── GuessHistory.tsx   # 实时猜测历史
+    │   ├── RulesModal.tsx     # 游戏规则弹窗（首启自动弹出）
+    │   ├── HistoryModal.tsx   # 历史记录 + 本局实时数据
+    │   ├── GameOverModal.tsx  # 结算界面 + 排行榜上传区
+    │   └── LeaderboardPage.tsx # 独立排行榜页（/leaderboard）
+├── functions/                 # Cloudflare Pages Functions（同源部署）
+│   └── api/
+│       └── leaderboard.ts     # GET 排行榜 / POST 上传分数（含服务端二次校验）
+└── db/
+    └── schema.sql             # D1 排行榜表结构（wrangler d1 execute 同步）
 ```
 
 ## 7. 状态机（`useGameState`）
@@ -146,3 +155,19 @@ hs-puzzle/
 6. **放弃**：整局作废，分数记 0，不可撤销。
 7. **模式**：标准 / 狂野；切换需确认。
 8. **历史**：本局动作实时可见，过往记录存于 localStorage。
+9. **排行榜**：仅「正常结束」（未放弃）的局可上传，绑定 `localStorage` 用户名（1~20 字符）；上传后跳转到 `/leaderboard` 查看 Top 20。
+
+## 10. 排行榜（D1）
+
+- **数据落地**：Cloudflare D1（SQLite），绑定名 `LEADERBOARD_DB`，表名 `leaderboard`，schema 见 `db/schema.sql`。
+- **API**：同源 `Pages Functions`：
+  - `GET  /api/leaderboard?version=<v>&mode=<standard|wild>&limit=20`
+  - `POST /api/leaderboard` body `{ username, score, version, gameMode, totalHints, totalGuesses, rounds: [{ cardId, hintCount, guessCount, score }] }`
+- **校验**：服务端按 `rounds` 重新计算总分（容差 ±10），任何字段不一致直接 400；同一 IP 5 秒内只接受一次写入。
+- **版本隔离**：`version` 字段（前端常量 `GAME_VERSION`）写入每条记录；查询时必须带 version 才能上榜，默认 `v1.0.0`。
+- **路由**：`/` 游戏页、`/leaderboard` 排行榜页；未知路径回退到游戏页（SPA 兜底由 `public/_redirects` 保证）。
+- **首次部署（仅一次）**：
+  1. `pwsh scripts/deploy-cf.ps1 -Action d1:create` → 拿到 `database_id` 填到 `wrangler.jsonc` 的 `d1_databases[0].database_id`。
+  2. `pwsh scripts/deploy-cf.ps1 -Action d1:migrate` → 把 `db/schema.sql` 同步到远程 D1。
+  3. `pwsh scripts/deploy-cf.ps1 -Action deploy` → 部署静态资源 + Pages Functions。
+- **未配置 D1 时**：API 返回 503，前端在错误提示中显示「排行榜服务未配置」。

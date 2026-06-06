@@ -10,14 +10,20 @@
     "dev": "rsbuild --open",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
+    "typecheck": "tsc --noEmit",
     "deploy:cf": "pwsh scripts/deploy-cf.ps1 -Action deploy",
-    "deploy:cf:guide": "pwsh scripts/deploy-cf.ps1 -Action guide"
+    "deploy:cf:guide": "pwsh scripts/deploy-cf.ps1 -Action guide",
+    "d1:create": "pwsh scripts/deploy-cf.ps1 -Action d1:create",
+    "d1:migrate": "pwsh scripts/deploy-cf.ps1 -Action d1:migrate",
+    "d1:migrate:local": "pwsh scripts/deploy-cf.ps1 -Action d1:migrate:local"
   },
   "dependencies": {
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.17.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260606.1",
     "@rsbuild/core": "^2.0.9",
     "@rsbuild/plugin-react": "^2.0.1",
     "@types/react": "^19.2.15",

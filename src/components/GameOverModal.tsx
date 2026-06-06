@@ -1,7 +1,14 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { CardItem } from './CardItem';
-import type { Card, RoundResult } from '../types';
+import type { Card, GameMode, RoundResult } from '../types';
+import {
+  getStoredUsername,
+  isValidUsername,
+  sanitizeUsername,
+  setStoredUsername,
+} from '../lib/username';
+import { GAME_VERSION, submitScore, toSubmitRounds } from '../lib/leaderboardApi';
 
 interface GameOverModalProps {
   isOpen: boolean;
@@ -10,8 +17,10 @@ interface GameOverModalProps {
   totalGuesses: number;
   rounds: RoundResult[];
   abandoned: boolean;
+  gameMode: GameMode;
   onRestart: () => void;
   onShowHistory: () => void;
+  onNavigateLeaderboard: () => void;
 }
 
 const scoreTier = (score: number): { label: string; color: string } => {
@@ -22,6 +31,13 @@ const scoreTier = (score: number): { label: string; color: string } => {
   return { label: 'D · 再接再厉', color: '#c4302b' };
 };
 
+type UploadState =
+  | { kind: 'idle' }
+  | { kind: 'editing' }
+  | { kind: 'uploading' }
+  | { kind: 'success'; rank: number }
+  | { kind: 'error'; message: string };
+
 export const GameOverModal: React.FC<GameOverModalProps> = ({
   isOpen,
   finalScore,
@@ -29,13 +45,75 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   totalGuesses,
   rounds,
   abandoned,
+  gameMode,
   onRestart,
   onShowHistory,
+  onNavigateLeaderboard,
 }) => {
+  const [storedName, setStoredName] = useState('');
+  const [editingName, setEditingName] = useState('');
+  const [upload, setUpload] = useState<UploadState>({ kind: 'idle' });
+
+  // 每次打开结算页: 读取 localStorage 中的用户名, 复位上传状态
+  useEffect(() => {
+    if (!isOpen) return;
+    setStoredName(getStoredUsername());
+    setEditingName('');
+    setUpload({ kind: 'idle' });
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const tier = scoreTier(finalScore);
   const maxScore = rounds.length * 1000;
+  const canUpload = !abandoned && rounds.length === 5 && finalScore > 0;
+
+  const beginEditName = () => {
+    setEditingName(storedName);
+    setUpload({ kind: 'editing' });
+  };
+
+  const cancelEdit = () => {
+    setEditingName('');
+    setUpload({ kind: 'idle' });
+  };
+
+  const commitName = () => {
+    const cleaned = sanitizeUsername(editingName);
+    if (!isValidUsername(cleaned)) {
+      setUpload({ kind: 'error', message: '用户名长度需在 1~20 个字符' });
+      return;
+    }
+    setStoredName(setStoredUsername(cleaned));
+    setEditingName('');
+    setUpload({ kind: 'idle' });
+  };
+
+  const handleUpload = async () => {
+    const name = storedName;
+    if (!isValidUsername(name)) {
+      setUpload({ kind: 'error', message: '请先设置一个用户名' });
+      return;
+    }
+    setUpload({ kind: 'uploading' });
+    try {
+      const result = await submitScore({
+        username: name,
+        score: finalScore,
+        gameMode,
+        totalHints,
+        totalGuesses,
+        rounds: toSubmitRounds(rounds),
+        version: GAME_VERSION,
+      });
+      setUpload({ kind: 'success', rank: result.rank });
+    } catch (e) {
+      setUpload({
+        kind: 'error',
+        message: e instanceof Error ? e.message : '上传失败',
+      });
+    }
+  };
 
   return (
     <div
@@ -192,6 +270,199 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
             </span>
           </div>
         </div>
+
+        {/* 排行榜上传区 - 仅正常结束的局可上传 */}
+        {canUpload && (
+          <div
+            data-testid="leaderboard-upload"
+            style={{
+              background: 'rgba(0,0,0,0.4)',
+              border: '1px solid #5a3a1a',
+              borderRadius: 8,
+              padding: '12px 14px',
+              marginBottom: 16,
+              textAlign: 'left',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#ffd966',
+                marginBottom: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <span style={{ fontSize: 16 }}>🏆</span>
+              上传至排行榜 ({GAME_VERSION})
+            </div>
+
+            {upload.kind === 'editing' ? (
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 6,
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                }}
+              >
+                <input
+                  type="text"
+                  autoFocus
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitName();
+                    if (e.key === 'Escape') cancelEdit();
+                  }}
+                  placeholder="输入用户名 (1~20 字符)"
+                  maxLength={20}
+                  style={{
+                    flex: 1,
+                    minWidth: 160,
+                    padding: '6px 10px',
+                    fontSize: 13,
+                    background: '#1a1208',
+                    color: '#f4e4bc',
+                    border: '1px solid #5a3a1a',
+                    borderRadius: 6,
+                    outline: 'none',
+                  }}
+                />
+                <button
+                  onClick={commitName}
+                  style={{
+                    padding: '6px 14px',
+                    fontSize: 12,
+                    background: 'linear-gradient(to bottom, #5fb24a, #3e8a2c)',
+                    color: 'white',
+                    border: '1px solid #2d661e',
+                    borderRadius: 12,
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                  }}
+                >
+                  保存
+                </button>
+                <button
+                  onClick={cancelEdit}
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: 12,
+                    background: 'transparent',
+                    color: '#f4e4bc',
+                    border: '1px solid #5a3a1a',
+                    borderRadius: 12,
+                    cursor: 'pointer',
+                  }}
+                >
+                  取消
+                </button>
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                }}
+              >
+                <div style={{ fontSize: 12, color: '#a08a6a', flex: 1, minWidth: 140 }}>
+                  用户名:{' '}
+                  <strong style={{ color: storedName ? '#ffd966' : '#ff7a73' }}>
+                    {storedName || '未设置'}
+                  </strong>
+                </div>
+                <button
+                  onClick={beginEditName}
+                  style={{
+                    padding: '4px 12px',
+                    fontSize: 12,
+                    background: 'transparent',
+                    color: '#f4e4bc',
+                    border: '1px solid #5a3a1a',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {storedName ? '修改' : '设置用户名'}
+                </button>
+                <button
+                  onClick={handleUpload}
+                  disabled={!storedName || upload.kind === 'uploading'}
+                  style={{
+                    padding: '6px 16px',
+                    fontSize: 13,
+                    background:
+                      !storedName || upload.kind === 'uploading'
+                        ? '#5a4a30'
+                        : 'linear-gradient(to bottom, #ffd966, #b87a2a)',
+                    color: !storedName || upload.kind === 'uploading' ? '#a08a6a' : '#1a1208',
+                    border: '1px solid #5a3a1a',
+                    borderRadius: 12,
+                    cursor:
+                      !storedName || upload.kind === 'uploading' ? 'not-allowed' : 'pointer',
+                    fontWeight: 700,
+                  }}
+                >
+                  {upload.kind === 'uploading' ? '上传中…' : '🏆 上传分数'}
+                </button>
+              </div>
+            )}
+
+            {/* 状态提示 */}
+            {upload.kind === 'success' && (
+              <div
+                style={{
+                  marginTop: 8,
+                  padding: '6px 10px',
+                  fontSize: 12,
+                  color: '#0a3a0a',
+                  background: 'linear-gradient(to bottom, #b6e2a3, #7fc465)',
+                  border: '1px solid #2d661e',
+                  borderRadius: 6,
+                  fontWeight: 700,
+                }}
+              >
+                🎉 上传成功! 当前排名第{' '}
+                <strong style={{ color: '#5a1010' }}>#{upload.rank}</strong>
+                <button
+                  onClick={onNavigateLeaderboard}
+                  style={{
+                    marginLeft: 10,
+                    padding: '2px 10px',
+                    fontSize: 11,
+                    background: 'transparent',
+                    color: '#1a1208',
+                    border: '1px solid #2d661e',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                  }}
+                >
+                  查看排行榜
+                </button>
+              </div>
+            )}
+            {upload.kind === 'error' && (
+              <div
+                style={{
+                  marginTop: 8,
+                  padding: '6px 10px',
+                  fontSize: 12,
+                  color: '#ffb3ad',
+                  background: 'rgba(196,48,43,0.18)',
+                  border: '1px solid #5a1010',
+                  borderRadius: 6,
+                }}
+              >
+                ❌ {upload.message}
+              </div>
+            )}
+          </div>
+        )}
 
         <div
           style={{
