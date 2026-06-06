@@ -273,7 +273,7 @@ export const GameBoard: React.FC = () => {
             letterSpacing: 1,
           }}
         >
-          🎴 炉石猜卡牌
+          🎴 炉石猜猜乐
         </h1>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <span
