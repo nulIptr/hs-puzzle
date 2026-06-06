@@ -70,21 +70,23 @@ function Invoke-Build {
 function Invoke-Deploy {
     Write-Step "准备通过 Wrangler CLI 直接部署到 Cloudflare Pages"
 
+    # 始终使用 `wrangler pages deploy`(不要用裸的 `wrangler deploy`,那是 Worker 项目的命令)
+    $cmd = 'wrangler'
     if (-not (Get-Command wrangler -ErrorAction SilentlyContinue)) {
-        Write-Warn "未检测到 wrangler,执行 npx wrangler@latest (首次运行会引导登录 Cloudflare)"
         $pm = Get-PackageManager
-        if ($pm -eq 'bun') { $cmd = 'bunx' } else { $cmd = 'npx' }
-    } else {
-        $cmd = 'wrangler'
+        $cmdBase = if ($pm -eq 'bun') { 'bunx' } else { 'npx' }
+        $cmd = "$cmdBase wrangler@latest"
+        Write-Warn "未检测到全局 wrangler,改用 $cmd (首次运行会引导登录 Cloudflare)"
     }
 
     Invoke-Build
 
-    $args = @('pages', 'deploy', 'dist', '--project-name', $ProjectName, '--branch', $Branch, '--commit-dirty=true')
-    if ($DryRun) { $args += '--dry-run' }
+    # 关键: 必须是 `pages deploy <dir>`,不能省略 `pages`
+    $wranglerArgs = @('pages', 'deploy', 'dist', '--project-name', $ProjectName, '--branch', $Branch, '--commit-dirty=true')
+    if ($DryRun) { $wranglerArgs += '--dry-run' }
 
-    Write-Host "    执行: $cmd $($args -join ' ')"
-    & $cmd @args
+    Write-Host "    执行: $cmd $($wranglerArgs -join ' ')"
+    & $cmd @wranglerArgs
     if ($LASTEXITCODE -ne 0) { throw "部署失败" }
     Write-Ok "部署完成!访问 https://$ProjectName.pages.dev 查看"
 }
