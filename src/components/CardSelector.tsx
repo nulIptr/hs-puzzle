@@ -59,6 +59,31 @@ const manaChipActive: React.CSSProperties = {
   boxShadow: '0 0 6px rgba(255,217,102,0.6)',
 };
 
+const filterBarLabel: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 700,
+  color: '#ffd966',
+  letterSpacing: 1,
+  padding: '0 4px',
+  flexShrink: 0,
+};
+
+const autoFilterBtn: React.CSSProperties = {
+  padding: '4px 14px',
+  background: 'linear-gradient(to bottom, #4ea8ff, #1e5fb8)',
+  color: 'white',
+  border: '1px solid #1a1208',
+  borderRadius: 14,
+  cursor: 'pointer',
+  fontSize: 12,
+  fontWeight: 600,
+  textShadow: '0 1px 1px rgba(0,0,0,0.3)',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  flexShrink: 0,
+};
+
 export const CardSelector: React.FC<CardSelectorProps> = ({
   cards,
   filter,
@@ -76,14 +101,25 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
     return cards.filter((card) => {
       if (filter.mana_cost !== null && card.mana_cost !== filter.mana_cost) return false;
       if (filter.class_id !== null && card.class_id !== filter.class_id) return false;
-      if (filter.minion_type_id !== null && card.minion_type_id !== filter.minion_type_id) return false;
+      // 种族支持复合标签（如"野兽,龙"），用子串包含匹配
+      if (
+        filter.minion_type_id !== null &&
+        !(card.minion_type_id || '').split(/[,，、\s]+/).includes(filter.minion_type_id)
+      ) {
+        return false;
+      }
       if (filter.rarity_id !== null && card.rarity_id !== filter.rarity_id) return false;
       if (filter.attack !== null && (card.attack || 0) !== filter.attack) return false;
       if (filter.health !== null && card.health !== filter.health) return false;
       if (filter.card_set_id !== null && card.card_set_id !== filter.card_set_id) return false;
       if (filter.excluded_mana_costs.includes(card.mana_cost)) return false;
       if (filter.excluded_class_ids.includes(card.class_id)) return false;
-      if (filter.excluded_minion_type_ids.includes(card.minion_type_id || '')) return false;
+      if (filter.excluded_minion_type_ids.length > 0) {
+        const cardTypes = (card.minion_type_id || '').split(/[,，、\s]+/).filter(Boolean);
+        if (filter.excluded_minion_type_ids.some((t) => cardTypes.includes(t))) {
+          return false;
+        }
+      }
       if (filter.excluded_rarity_ids.includes(card.rarity_id)) return false;
       if (filter.excluded_attacks.includes(card.attack || 0)) return false;
       if (filter.excluded_healths.includes(card.health)) return false;
@@ -99,13 +135,20 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
     () => Array.from(new Set(cards.map((c) => c.mana_cost))).sort((a, b) => a - b),
     [cards]
   );
-  const uniqueClasses = React.useMemo(
-    () => Array.from(new Set(cards.map((c) => c.class_id))).sort(),
-    [cards]
+  const classIds = React.useMemo(
+    // 职业按钮固定取自 Classes 字典的 12 个职业键，
+    // 既不被 .slice(0, 8) 截断，也不会因为某个职业在当前模式下没有卡牌而消失。
+    () => Object.keys(Classes) as Array<keyof typeof Classes>,
+    []
   );
   const uniqueMinionTypes = React.useMemo(
-    () => Array.from(new Set(cards.map((c) => c.minion_type_id).filter(Boolean))).sort(),
-    [cards]
+    // 种族选项固定取自 MinionTypes 字典的原子键（去除"全部"），
+    // 避免卡牌数据中可能存在的"野兽,龙"等复合标签污染下拉选项。
+    () =>
+      (Object.keys(MinionTypes) as Array<keyof typeof MinionTypes>).filter(
+        (k) => k !== '全部'
+      ),
+    []
   );
   const uniqueRarities = React.useMemo(
     () => Array.from(new Set(cards.map((c) => c.rarity_id))).sort(),
@@ -304,29 +347,47 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
           boxShadow: '0 4px 8px rgba(0,0,0,0.25)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 8,
+          gap: 10,
         }}
       >
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-          {/* 职业选择 */}
+        {/* 第 1 行：职业 */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <span style={filterBarLabel}>职业</span>
           <button
             onClick={() => handleClassToggle('')}
             style={filter.class_id === null ? chipActive : chipBase}
             title="全部职业"
           >
-            全部职业
+            全部
           </button>
-          {uniqueClasses.slice(0, 8).map((id) => (
+          {classIds.map((id) => (
             <button
               key={id}
               onClick={() => handleClassToggle(id)}
               style={filter.class_id === id ? chipActive : chipBase}
             >
-              {Classes[id as keyof typeof Classes] || id}
+              {Classes[id]}
             </button>
           ))}
+        </div>
 
-          {/* 费用宝石 */}
+        {/* 第 2 行：水晶 + 搜索 + 筛选按钮 */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <span style={filterBarLabel}>水晶</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
             {manaChips.map((c) => (
               <div
@@ -340,12 +401,12 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
             ))}
           </div>
 
-          {/* 搜索框 */}
+          {/* 搜索框：窄屏时独占一行 */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              flex: 1,
+              flex: '1 1 200px',
               minWidth: 160,
               background: '#1a1208',
               border: '1px solid #5a3a1a',
@@ -357,7 +418,7 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="搜索卡牌..."
+              placeholder="输入卡牌名称搜索..."
               style={{
                 flex: 1,
                 background: 'transparent',
@@ -393,10 +454,54 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
                 ? 'linear-gradient(to bottom, #6b4a2a, #4a3320)'
                 : chipBase.background,
               color: advancedOpen ? '#ffd966' : chipBase.color,
+              flexShrink: 0,
             }}
           >
-            ⚙ 筛选
+            ⚙ 筛选{advancedOpen ? ' ▲' : ' ▼'}
           </button>
+        </div>
+
+        {/* 操作按钮行（一键过滤 / 清除 / 计数） */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            paddingTop: 6,
+            borderTop: '1px dashed #5a3a1a',
+          }}
+        >
+          {canAutoFilter && (
+            <button
+              onClick={handleAutoFilter}
+              style={autoFilterBtn}
+              title="根据提示和猜测自动缩小候选池"
+            >
+              一键过滤
+            </button>
+          )}
+          <button
+            onClick={resetFilter}
+            style={{
+              ...chipBase,
+              padding: '4px 14px',
+              flexShrink: 0,
+            }}
+          >
+            清除过滤
+          </button>
+          <span
+            style={{
+              fontSize: 12,
+              color: '#d4b886',
+              marginLeft: 'auto',
+              flexShrink: 0,
+            }}
+          >
+            匹配 <strong style={{ color: '#ffd966' }}>{filteredCards.length}</strong> /{' '}
+            {cards.length} 张
+          </span>
         </div>
 
         {/* 高级筛选 */}
@@ -406,8 +511,7 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
               gap: 8,
-              paddingTop: 8,
-              borderTop: '1px dashed #5a3a1a',
+              paddingTop: 4,
             }}
           >
             <SelectFilter
@@ -455,40 +559,6 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
             />
           </div>
         )}
-
-        {/* 操作按钮行 */}
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          {canAutoFilter && (
-            <button
-              onClick={handleAutoFilter}
-              style={{
-                padding: '4px 14px',
-                background: 'linear-gradient(to bottom, #4ea8ff, #1e5fb8)',
-                color: 'white',
-                border: '1px solid #1a1208',
-                borderRadius: 14,
-                cursor: 'pointer',
-                fontSize: 12,
-                fontWeight: 600,
-                textShadow: '0 1px 1px rgba(0,0,0,0.3)',
-              }}
-            >
-              一键过滤
-            </button>
-          )}
-          <button
-            onClick={resetFilter}
-            style={{
-              ...chipBase,
-              padding: '4px 14px',
-            }}
-          >
-            清除过滤
-          </button>
-          <span style={{ fontSize: 12, color: '#d4b886' }}>
-            匹配 {filteredCards.length} / {cards.length} 张
-          </span>
-        </div>
 
         {/* 排除条件标签 */}
         {(filter.excluded_mana_costs.length > 0 ||

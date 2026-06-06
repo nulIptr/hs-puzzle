@@ -25,10 +25,17 @@ export const SelectFilter = <T extends string | number>({
       {label}
     </label>
     <select
-      value={value ?? ''}
+      value={value === null || value === undefined ? '' : String(value)}
       onChange={(e) => {
         const val = e.target.value;
-        onChange(val === '' ? null : (val as T));
+        if (val === '') {
+          onChange(null);
+          return;
+        }
+        // <select> 的 value 始终是 string；
+        // 根据 options 中首个 value 的实际类型还原 T，避免 number 字段被存成 string 导致后续严格比较失败。
+        const sample = options[0]?.value;
+        onChange((typeof sample === 'number' ? Number(val) : val) as T);
       }}
       style={{
         padding: '5px 8px',
