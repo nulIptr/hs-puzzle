@@ -1,17 +1,8 @@
 // Cloudflare Pages 配置文件
+// 仅供 `wrangler pages deploy` 命令读取,Git 集成部署的构建设置在 Cloudflare 控制台
 // 文档: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hs-puzzle",
-  "compatibility_date": "2024-09-23",
-  "compatibility_flags": ["nodejs_compat"],
-  "pages_build_output_dir": "dist",
-  "build": {
-    "command": "bun run build",
-    "cwd": ".",
-    "watch_dir": "src"
-  },
-  "observability": {
-    "enabled": true
-  }
+  "pages_build_output_dir": "dist"
 }
