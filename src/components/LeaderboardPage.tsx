@@ -1,8 +1,16 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchLeaderboard, GAME_VERSION, type LeaderboardEntry } from '../lib/leaderboardApi';
+import {
+  fetchLeaderboard,
+  GAME_VERSION,
+  clearMockLeaderboard,
+  type LeaderboardEntry,
+} from '../lib/leaderboardApi';
+import { useIsMobile } from '../hooks/useIsMobile';
 import type { GameMode } from '../types';
+
+const IS_DEV = process.env.NODE_ENV !== 'production';
 
 const MODES: { value: GameMode; label: string }[] = [
   { value: 'standard', label: '标准' },
@@ -29,6 +37,7 @@ export const LeaderboardPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [version] = useState(GAME_VERSION);
+  const isMobile = useIsMobile();
 
   const load = useCallback(
     async (signal?: AbortSignal) => {
@@ -60,7 +69,7 @@ export const LeaderboardPage: React.FC = () => {
         minHeight: '100vh',
         background: 'linear-gradient(to bottom, #2a1f17, #1a1208)',
         color: '#f4e4bc',
-        padding: '20px 16px 60px 16px',
+        padding: isMobile ? '10px 6px 40px 6px' : '20px 16px 60px 16px',
         fontFamily: 'inherit',
       }}
     >
@@ -71,7 +80,7 @@ export const LeaderboardPage: React.FC = () => {
           background: 'linear-gradient(to bottom, #3a2c1f, #2a1f17)',
           border: '2px solid #5a3a1a',
           borderRadius: 12,
-          padding: '20px 24px',
+          padding: isMobile ? '14px 12px' : '20px 24px',
           boxShadow: '0 6px 20px rgba(0,0,0,0.5)',
         }}
       >
@@ -88,19 +97,39 @@ export const LeaderboardPage: React.FC = () => {
           <h1
             style={{
               margin: 0,
-              fontSize: 24,
+              fontSize: isMobile ? 18 : 24,
               color: '#ffd966',
               textShadow: '0 2px 0 rgba(0,0,0,0.4)',
               letterSpacing: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              flexWrap: 'wrap',
             }}
           >
-            🏆 炉石猜猜乐 · 排行榜
+            <span>🏆 炉石猜猜乐 · 排行榜</span>
+            {IS_DEV && (
+              <span
+                title="dev 模式: 数据来自 localStorage mock, 不走 D1"
+                style={{
+                  fontSize: isMobile ? 10 : 11,
+                  padding: '2px 8px',
+                  background: 'rgba(255,217,102,0.18)',
+                  color: '#ffd966',
+                  border: '1px solid #ffd966',
+                  borderRadius: 8,
+                  letterSpacing: 0,
+                }}
+              >
+                DEV · mock
+              </span>
+            )}
           </h1>
           <Link
             to="/"
             style={{
-              padding: '6px 16px',
-              fontSize: 13,
+              padding: isMobile ? '5px 12px' : '6px 16px',
+              fontSize: isMobile ? 12 : 13,
               background: 'linear-gradient(to bottom, #5fb24a, #3e8a2c)',
               color: 'white',
               border: '1px solid #2d661e',
@@ -145,7 +174,7 @@ export const LeaderboardPage: React.FC = () => {
                     onClick={() => setMode(m.value)}
                     aria-pressed={active}
                     style={{
-                      padding: '4px 14px',
+                      padding: isMobile ? '4px 12px' : '4px 14px',
                       cursor: 'pointer',
                       fontSize: 12,
                       fontWeight: 600,
@@ -163,8 +192,32 @@ export const LeaderboardPage: React.FC = () => {
               })}
             </div>
           </div>
-          <div style={{ fontSize: 11, color: '#a08a6a' }}>
-            版本: <strong style={{ color: '#ffd966' }}>{version}</strong> · 显示前 20 名
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: isMobile ? 10 : 11, color: '#a08a6a' }}>
+              版本: <strong style={{ color: '#ffd966' }}>{version}</strong>
+              {!isMobile && <> · 显示前 20 名</>}
+            </div>
+            {IS_DEV && (
+              <button
+                onClick={() => {
+                  if (!window.confirm('清空本地 mock 排行榜并重新植入示例数据?')) return;
+                  clearMockLeaderboard();
+                  load();
+                }}
+                title="dev 模式专用: 清空 localStorage 里的 mock 排行榜"
+                style={{
+                  padding: '2px 10px',
+                  fontSize: isMobile ? 10 : 11,
+                  background: 'transparent',
+                  color: '#f4e4bc',
+                  border: '1px dashed #5a3a1a',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                }}
+              >
+                ♻️ 重置 mock
+              </button>
+            )}
           </div>
         </div>
 
@@ -238,10 +291,12 @@ export const LeaderboardPage: React.FC = () => {
                   key={entry.id}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '60px 1fr auto auto auto',
+                    gridTemplateColumns: '40px minmax(0, 1fr) auto',
+                    gridTemplateRows: 'auto auto',
                     alignItems: 'center',
-                    gap: 10,
-                    padding: '10px 14px',
+                    columnGap: 10,
+                    rowGap: 4,
+                    padding: '10px 12px',
                     background:
                       rank === 1
                         ? 'linear-gradient(to right, rgba(255,217,102,0.18), rgba(0,0,0,0.2))'
@@ -252,22 +307,26 @@ export const LeaderboardPage: React.FC = () => {
                 >
                   <div
                     style={{
-                      fontSize: rank <= 3 ? 22 : 14,
+                      gridRow: '1 / 3',
+                      gridColumn: '1 / 2',
+                      fontSize: rank <= 3 ? 20 : 13,
                       fontWeight: 800,
-                      color: rank <= 3 ? '#ffd966' : '#a08a6a',
+                      color: rank <= 3 ? '#ffd966' : '#c8b48a',
                       textAlign: 'center',
+                      letterSpacing: 0.5,
                     }}
                   >
                     {medal}
                   </div>
                   <div
                     style={{
-                      fontSize: 15,
+                      gridRow: 1,
+                      gridColumn: '2 / 4',
+                      fontSize: 14,
                       fontWeight: 700,
                       color: '#f4e4bc',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
+                      minWidth: 0,
                     }}
                     title={entry.username}
                   >
@@ -275,10 +334,12 @@ export const LeaderboardPage: React.FC = () => {
                   </div>
                   <div
                     style={{
-                      fontSize: 18,
+                      gridRow: 1,
+                      gridColumn: '3 / 4',
+                      fontSize: 16,
                       fontWeight: 800,
                       color: tierColor(entry.score),
-                      minWidth: 80,
+                      minWidth: 0,
                       textAlign: 'right',
                       textShadow: '0 1px 2px rgba(0,0,0,0.4)',
                     }}
@@ -287,28 +348,32 @@ export const LeaderboardPage: React.FC = () => {
                   </div>
                   <div
                     style={{
+                      gridRow: 2,
+                      gridColumn: '2 / 3',
                       display: 'flex',
-                      gap: 10,
-                      fontSize: 12,
+                      gap: 8,
+                      fontSize: 11,
                       color: '#a08a6a',
-                      minWidth: 120,
-                      justifyContent: 'flex-end',
+                      minWidth: 0,
+                      justifyContent: 'flex-start',
                     }}
                   >
                     <span>
-                      提{' '}
+                      提示{' '}
                       <strong style={{ color: '#b85a00' }}>{entry.totalHints}</strong>
                     </span>
                     <span>
-                      猜{' '}
+                      猜卡{' '}
                       <strong style={{ color: '#1e5fb8' }}>{entry.totalGuesses}</strong>
                     </span>
                   </div>
                   <div
                     style={{
-                      fontSize: 11,
+                      gridRow: 2,
+                      gridColumn: '3 / 4',
+                      fontSize: 10,
                       color: '#a08a6a',
-                      minWidth: 130,
+                      minWidth: 0,
                       textAlign: 'right',
                     }}
                     title={new Date(entry.createdAt).toLocaleString()}

@@ -171,3 +171,44 @@ hs-puzzle/
   2. `pwsh scripts/deploy-cf.ps1 -Action d1:migrate` → 把 `db/schema.sql` 同步到远程 D1。
   3. `pwsh scripts/deploy-cf.ps1 -Action deploy` → 部署静态资源 + Pages Functions。
 - **未配置 D1 时**：API 返回 503，前端在错误提示中显示「排行榜服务未配置」。
+
+## 11. 本地开发：排行榜
+
+`bun run dev` 启动的是 Rsbuild 静态服务器，**不包含** Cloudflare Pages Functions，因此 `/api/leaderboard` 会 404。本项目提供两条本地路径，按需选用：
+
+### 方案 A · Mock fallback（零配置，推荐日常联调）
+
+- `src/lib/leaderboardApi.ts` 在 `process.env.NODE_ENV !== 'production'` 时直接走 localStorage mock，**不发起任何网络请求**。
+- 首次访问会自动植入 10 条示例数据（key：`hs-puzzle.dev-leaderboard`），可在排行榜页右上角点 `♻️ 重置 mock` 清空并重新植入。
+- 排行榜页标题旁会出现 `DEV · mock` 徽标，build/preview 走真实 Pages Functions。
+- 适合：UI 联调、动画/响应式调试、不需要后端的纯前端迭代。
+
+### 方案 B · wrangler pages dev + 本地 D1（端到端验证）
+
+- 完整复刻 Cloudflare Pages Functions + D1 行为，推荐在动排行榜 API/Schema 时使用。
+- 前置：`npm i -g wrangler`（或 `bunx wrangler@latest` 临时使用）。
+- 步骤：
+
+  ```pwsh
+  # 1) 构建静态产物
+  bun run build
+
+  # 2) 首次创建本地 D1 schema（只需要跑一次）
+  bunx wrangler d1 execute hs-puzzle-leaderboard --file=db/schema.sql --local
+
+  # 3) 用 wrangler 本地服务器托管 dist/ + functions/，D1 绑定为 LEADERBOARD_DB
+  bunx wrangler pages dev dist --d1=LEADERBOARD_DB=hs-puzzle-leaderboard --port 5173
+  ```
+
+- 浏览器打开 `http://localhost:5173`，打开 DevTools Network 可看到真实的 `/api/leaderboard` 请求。
+- 需要造数据时：
+
+  ```pwsh
+  # 写入示例数据
+  bunx wrangler d1 execute hs-puzzle-leaderboard --local --command "INSERT INTO leaderboard (username, score, version, game_mode, total_hints, total_guesses, rounds_json, created_at) VALUES ('TestUser', 4200, 'v1.0.0', 'standard', 10, 10, '[]', $(Get-Date -UFormat %s)000)"
+  # 查询本地榜单
+  bunx wrangler d1 execute hs-puzzle-leaderboard --local --command "SELECT username, score, game_mode FROM leaderboard ORDER BY score DESC LIMIT 20"
+  ```
+
+- 注：wrangler 本地 D1 数据存放在 `.wrangler/state/v3/d1/` 下，删除可重置；与远程 D1 互不影响。
+
