@@ -125,8 +125,10 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
       if (filter.excluded_mana_costs.includes(card.mana_cost)) return false;
       if (filter.excluded_class_ids.includes(card.class_id)) return false;
       if (filter.excluded_minion_type_ids.length > 0) {
-        const cardTypes = (card.minion_type_id || '').split(/[,，、\s]+/).filter(Boolean);
-        if (filter.excluded_minion_type_ids.some((t) => cardTypes.includes(t))) {
+        // 排除的应是「整组种族组合」完全等于已猜错卡片的 minion_type_id，
+        // 避免把「目标=亡灵 野兽、误猜=野兽」这种情况下的目标卡错误地过滤掉。
+        // 复合类型（如"元素 野兽"）按整串匹配，单类型（如"野兽"）也按整串匹配。
+        if (filter.excluded_minion_type_ids.includes(card.minion_type_id || '')) {
           return false;
         }
       }
@@ -728,7 +730,11 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
                   border: '1px solid #c4302b',
                 }}
               >
-                {MinionTypes[v as keyof typeof MinionTypes] || v || '无种族'}
+                {(() => {
+                  if (!v) return '无种族';
+                  const parts = v.split(/[,，、\s]+/).filter(Boolean);
+                  return parts.map((p) => MinionTypes[p as keyof typeof MinionTypes] || p).join('·') || '无种族';
+                })()}
               </span>
             ))}
             {filter.excluded_rarity_ids.map((v) => (
