@@ -477,7 +477,8 @@ export const GameBoard: React.FC = () => {
         <div
           style={{
             width: isMobile ? '100%' : 320,
-            maxHeight: isMobile ? '42vh' : undefined,
+            // 移动端限制侧栏最大高度，让 CardSelector 至少能拿到屏幕一半的高度
+            maxHeight: isMobile ? '35vh' : undefined,
             background: 'linear-gradient(to bottom, #3a2c1f, #2a1f17)',
             border: '2px solid #5a3a1a',
             borderRadius: 8,
