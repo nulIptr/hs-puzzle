@@ -31,6 +31,22 @@ const scoreTier = (score: number): { label: string; color: string } => {
   return { label: 'D · 再接再厉', color: '#c4302b' };
 };
 
+const NICKNAME_SUBJECTS = [
+  '最长的河',
+  '最高的山',
+  '冷面魔男',
+  'Zard',
+  'Nostalie',
+  'djwcb',
+  '大铲车',
+] as const;
+
+const generateRandomNickname = (): string => {
+  const subject = NICKNAME_SUBJECTS[Math.floor(Math.random() * NICKNAME_SUBJECTS.length)];
+  const digits = Math.floor(1000 + Math.random() * 9000);
+  return `${subject}#${digits}`;
+};
+
 type UploadState =
   | { kind: 'idle' }
   | { kind: 'editing' }
@@ -331,6 +347,21 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
                     outline: 'none',
                   }}
                 />
+                <button
+                  onClick={() => setEditingName(generateRandomNickname())}
+                  title="随机生成一个默认昵称"
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: 12,
+                    background: 'transparent',
+                    color: '#f4e4bc',
+                    border: '1px solid #5a3a1a',
+                    borderRadius: 12,
+                    cursor: 'pointer',
+                  }}
+                >
+                  🎲 随机
+                </button>
                 <button
                   onClick={commitName}
                   style={{
