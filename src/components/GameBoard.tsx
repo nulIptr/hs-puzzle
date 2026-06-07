@@ -12,6 +12,7 @@ import type { Card, GameMode, HistoryEntry } from '../types';
 import { getPlayableCards, loadMinionCards } from '../data';
 import { Classes, MinionTypes, Rarities, Series } from '../data/metadata';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 declare global {
   interface Window {
@@ -77,6 +78,7 @@ export const GameBoard: React.FC = () => {
   const { filter, setFilter, resetFilter } = useFilteredCards();
   const { history, addEntry, clearHistory } = useHistory();
   const [search, setSearch] = React.useState('');
+  const isMobile = useIsMobile();
 
   // 每轮切换时重置筛选条件（自动进入下一轮 / 重新开局）
   React.useEffect(() => {
@@ -259,16 +261,17 @@ export const GameBoard: React.FC = () => {
       {/* 顶部品牌区 */}
       <div
         style={{
-          padding: '12px 24px 4px 24px',
+          padding: isMobile ? '8px 10px 4px 10px' : '12px 24px 4px 24px',
           display: 'flex',
           alignItems: 'center',
-          gap: 16,
+          gap: isMobile ? 8 : 16,
+          flexWrap: 'wrap',
         }}
       >
         <h1
           style={{
             margin: 0,
-            fontSize: 22,
+            fontSize: isMobile ? 18 : 22,
             color: '#3a2410',
             textShadow: '0 1px 0 rgba(255,255,255,0.4)',
             fontWeight: 700,
@@ -460,19 +463,32 @@ export const GameBoard: React.FC = () => {
       </div>
 
       {/* 顶部筛选条 + 提示/历史 侧栏 + 主区 */}
-      <div style={{ display: 'flex', flex: 1, minHeight: 0, padding: '8px 16px 16px 16px', gap: 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          flex: 1,
+          minHeight: 0,
+          padding: isMobile ? '6px 8px 8px 8px' : '8px 16px 16px 16px',
+          gap: isMobile ? 6 : 12,
+        }}
+      >
+        {/* 侧栏（核心功能：始终可见） */}
         <div
           style={{
-            width: 320,
+            width: isMobile ? '100%' : 320,
+            maxHeight: isMobile ? '42vh' : undefined,
             background: 'linear-gradient(to bottom, #3a2c1f, #2a1f17)',
             border: '2px solid #5a3a1a',
             borderRadius: 8,
-            padding: 12,
+            padding: isMobile ? 8 : 12,
             display: 'flex',
             flexDirection: 'column',
-            gap: 12,
+            gap: isMobile ? 8 : 12,
             color: '#f4e4bc',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+            flexShrink: 0,
           }}
         >
           <HintPanel
@@ -480,10 +496,12 @@ export const GameBoard: React.FC = () => {
             remainingHints={remainingHints}
             maxHintTypes={maxHintTypes}
             onGetHint={getHint}
+            compact={isMobile}
           />
           <GuessHistory
             guesses={guesses}
             excludedCardIds={guesses.map((g) => g.card.id)}
+            compact={isMobile}
           />
         </div>
 
@@ -491,6 +509,7 @@ export const GameBoard: React.FC = () => {
           style={{
             flex: 1,
             minWidth: 0,
+            minHeight: 0,
             display: 'flex',
             flexDirection: 'column',
             gap: 8,

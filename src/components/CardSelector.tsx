@@ -3,6 +3,7 @@ import { CardItem } from './CardItem';
 import type { Card, FilterState, Hint, GuessResult } from '../types';
 import { Classes, MinionTypes, Rarities, Series } from '../data/metadata';
 import { SelectFilter } from './SelectFilter';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface CardSelectorProps {
   cards: Card[];
@@ -95,6 +96,15 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
   setSearch,
 }) => {
   const [advancedOpen, setAdvancedOpen] = React.useState(false);
+  const isMobile = useIsMobile();
+  const [mobileFilterOpen, setMobileFilterOpen] = React.useState(false);
+
+  // 移动端打开筛选弹窗时，如果面板之前是折叠的则自动展开
+  React.useEffect(() => {
+    if (mobileFilterOpen && !advancedOpen) {
+      setAdvancedOpen(true);
+    }
+  }, [mobileFilterOpen, advancedOpen]);
 
   const filteredCards = React.useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -342,222 +352,298 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
           background: 'linear-gradient(to bottom, #3a2c1f, #2a1f17)',
           border: '2px solid #5a3a1a',
           borderRadius: 8,
-          padding: '10px 12px',
+          padding: isMobile ? '8px 10px' : '10px 12px',
           color: '#f4e4bc',
           boxShadow: '0 4px 8px rgba(0,0,0,0.25)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 10,
+          gap: isMobile ? 6 : 10,
         }}
       >
-        {/* 第 1 行：职业 */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <span style={filterBarLabel}>职业</span>
-          <button
-            onClick={() => handleClassToggle('')}
-            style={filter.class_id === null ? chipActive : chipBase}
-            title="全部职业"
-          >
-            全部
-          </button>
-          {classIds.map((id) => (
-            <button
-              key={id}
-              onClick={() => handleClassToggle(id)}
-              style={filter.class_id === id ? chipActive : chipBase}
-            >
-              {Classes[id]}
-            </button>
-          ))}
-        </div>
-
-        {/* 第 2 行：水晶 + 搜索 + 筛选按钮 */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <span style={filterBarLabel}>水晶</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-            {manaChips.map((c) => (
-              <div
-                key={c.value}
-                onClick={() => handleManaToggle(c.value)}
-                style={filter.mana_cost === c.value ? manaChipActive : manaChipBase}
-                title={`${c.label} 费`}
-              >
-                {c.label}
-              </div>
-            ))}
-          </div>
-
-          {/* 搜索框：窄屏时独占一行 */}
+        {isMobile ? (
+          /* ===== 移动端：简化版筛选条（只显示一键过滤） ===== */
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              flex: '1 1 200px',
-              minWidth: 160,
-              background: '#1a1208',
-              border: '1px solid #5a3a1a',
-              borderRadius: 16,
-              padding: '0 4px 0 10px',
-            }}
-          >
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="输入卡牌名称搜索..."
-              style={{
-                flex: 1,
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                color: '#f4e4bc',
-                fontSize: 13,
-                padding: '6px 4px',
-              }}
-            />
-            <button
-              style={{
-                background: 'linear-gradient(to bottom, #ffd966, #b87a2a)',
-                color: '#1a1208',
-                border: '1px solid #5a3a1a',
-                borderRadius: 12,
-                padding: '4px 12px',
-                cursor: 'pointer',
-                fontSize: 12,
-                fontWeight: 700,
-              }}
-            >
-              搜索
-            </button>
-          </div>
-
-          {/* 筛选按钮 */}
-          <button
-            onClick={() => setAdvancedOpen((v) => !v)}
-            style={{
-              ...chipBase,
-              background: advancedOpen
-                ? 'linear-gradient(to bottom, #6b4a2a, #4a3320)'
-                : chipBase.background,
-              color: advancedOpen ? '#ffd966' : chipBase.color,
-              flexShrink: 0,
-            }}
-          >
-            ⚙ 筛选{advancedOpen ? ' ▲' : ' ▼'}
-          </button>
-        </div>
-
-        {/* 操作按钮行（一键过滤 / 清除 / 计数） */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            paddingTop: 6,
-            borderTop: '1px dashed #5a3a1a',
-          }}
-        >
-          {canAutoFilter && (
-            <button
-              onClick={handleAutoFilter}
-              style={autoFilterBtn}
-              title="根据提示和猜测自动缩小候选池"
-            >
-              一键过滤
-            </button>
-          )}
-          <button
-            onClick={resetFilter}
-            style={{
-              ...chipBase,
-              padding: '4px 14px',
-              flexShrink: 0,
-            }}
-          >
-            清除过滤
-          </button>
-          <span
-            style={{
-              fontSize: 12,
-              color: '#d4b886',
-              marginLeft: 'auto',
-              flexShrink: 0,
-            }}
-          >
-            匹配 <strong style={{ color: '#ffd966' }}>{filteredCards.length}</strong> /{' '}
-            {cards.length} 张
-          </span>
-        </div>
-
-        {/* 高级筛选 */}
-        {advancedOpen && (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
               gap: 8,
-              paddingTop: 4,
+              alignItems: 'center',
+              flexWrap: 'wrap',
             }}
           >
-            <SelectFilter
-              label="种族"
-              value={filter.minion_type_id}
-              options={uniqueMinionTypes.map((id) => ({
-                value: id,
-                label: MinionTypes[id as keyof typeof MinionTypes] || id,
-              }))}
-              onChange={(v) => setFilter((prev) => ({ ...prev, minion_type_id: v }))}
-            />
-            <SelectFilter
-              label="稀有度"
-              value={filter.rarity_id}
-              options={uniqueRarities.map((id) => ({
-                value: id,
-                label: Rarities[id as keyof typeof Rarities] || id,
-              }))}
-              onChange={(v) => setFilter((prev) => ({ ...prev, rarity_id: v }))}
-            />
-            <SelectFilter
-              label="系列"
-              value={filter.card_set_id}
-              options={uniqueSets.map((id) => ({
-                value: id,
-                label: Series[String(id) as keyof typeof Series] || String(id),
-              }))}
-              onChange={(v) => setFilter((prev) => ({ ...prev, card_set_id: v }))}
-            />
-            <SelectFilter
-              label="攻击力"
-              value={filter.attack}
-              options={Array.from(new Set(cards.map((c) => c.attack || 0)))
-                .sort((a, b) => a - b)
-                .map((a) => ({ value: a, label: String(a) }))}
-              onChange={(v) => setFilter((prev) => ({ ...prev, attack: v }))}
-            />
-            <SelectFilter
-              label="生命值"
-              value={filter.health}
-              options={Array.from(new Set(cards.map((c) => c.health)))
-                .sort((a, b) => a - b)
-                .map((h) => ({ value: h, label: String(h) }))}
-              onChange={(v) => setFilter((prev) => ({ ...prev, health: v }))}
-            />
+            {canAutoFilter ? (
+              <button
+                onClick={handleAutoFilter}
+                style={{
+                  ...autoFilterBtn,
+                  flex: '1 1 auto',
+                  justifyContent: 'center',
+                  padding: '8px 14px',
+                  fontSize: 14,
+                  fontWeight: 700,
+                }}
+                title="根据提示和猜测自动缩小候选池"
+              >
+                一键过滤
+              </button>
+            ) : (
+              <span
+                style={{
+                  fontSize: 12,
+                  color: '#a08a6a',
+                  padding: '6px 4px',
+                }}
+              >
+                暂无提示/猜测可参考
+              </span>
+            )}
+            <button
+              onClick={resetFilter}
+              style={{
+                ...chipBase,
+                padding: '6px 12px',
+                flexShrink: 0,
+                fontSize: 12,
+              }}
+            >
+              清除过滤
+            </button>
+            <button
+              onClick={() => setMobileFilterOpen(true)}
+              style={{
+                ...chipBase,
+                flexShrink: 0,
+                padding: '6px 10px',
+                fontSize: 12,
+              }}
+              title="展开高级筛选"
+            >
+              🎯 筛选
+            </button>
+            <span
+              style={{
+                fontSize: 12,
+                color: '#d4b886',
+                marginLeft: 'auto',
+                flexShrink: 0,
+              }}
+            >
+              匹配 <strong style={{ color: '#ffd966' }}>{filteredCards.length}</strong> /{' '}
+              {cards.length} 张
+            </span>
           </div>
+        ) : (
+          /* ===== 桌面端：完整版筛选条 ===== */
+          <>
+            {/* 第 1 行：职业 */}
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <span style={filterBarLabel}>职业</span>
+              <button
+                onClick={() => handleClassToggle('')}
+                style={filter.class_id === null ? chipActive : chipBase}
+                title="全部职业"
+              >
+                全部
+              </button>
+              {classIds.map((id) => (
+                <button
+                  key={id}
+                  onClick={() => handleClassToggle(id)}
+                  style={filter.class_id === id ? chipActive : chipBase}
+                >
+                  {Classes[id]}
+                </button>
+              ))}
+            </div>
+
+            {/* 第 2 行：水晶 + 搜索 + 筛选按钮 */}
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <span style={filterBarLabel}>水晶</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                {manaChips.map((c) => (
+                  <div
+                    key={c.value}
+                    onClick={() => handleManaToggle(c.value)}
+                    style={filter.mana_cost === c.value ? manaChipActive : manaChipBase}
+                    title={`${c.label} 费`}
+                  >
+                    {c.label}
+                  </div>
+                ))}
+              </div>
+
+              {/* 搜索框：窄屏时独占一行 */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: '1 1 200px',
+                  minWidth: 160,
+                  background: '#1a1208',
+                  border: '1px solid #5a3a1a',
+                  borderRadius: 16,
+                  padding: '0 4px 0 10px',
+                }}
+              >
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="输入卡牌名称搜索..."
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    color: '#f4e4bc',
+                    fontSize: 13,
+                    padding: '6px 4px',
+                  }}
+                />
+                <button
+                  style={{
+                    background: 'linear-gradient(to bottom, #ffd966, #b87a2a)',
+                    color: '#1a1208',
+                    border: '1px solid #5a3a1a',
+                    borderRadius: 12,
+                    padding: '4px 12px',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    fontWeight: 700,
+                  }}
+                >
+                  搜索
+                </button>
+              </div>
+
+              {/* 筛选按钮 */}
+              <button
+                onClick={() => setAdvancedOpen((v) => !v)}
+                style={{
+                  ...chipBase,
+                  background: advancedOpen
+                    ? 'linear-gradient(to bottom, #6b4a2a, #4a3320)'
+                    : chipBase.background,
+                  color: advancedOpen ? '#ffd966' : chipBase.color,
+                  flexShrink: 0,
+                }}
+              >
+                ⚙ 筛选{advancedOpen ? ' ▲' : ' ▼'}
+              </button>
+            </div>
+
+            {/* 操作按钮行（一键过滤 / 清除 / 计数） */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 8,
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                paddingTop: 6,
+                borderTop: '1px dashed #5a3a1a',
+              }}
+            >
+              {canAutoFilter && (
+                <button
+                  onClick={handleAutoFilter}
+                  style={autoFilterBtn}
+                  title="根据提示和猜测自动缩小候选池"
+                >
+                  一键过滤
+                </button>
+              )}
+              <button
+                onClick={resetFilter}
+                style={{
+                  ...chipBase,
+                  padding: '4px 14px',
+                  flexShrink: 0,
+                }}
+              >
+                清除过滤
+              </button>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: '#d4b886',
+                  marginLeft: 'auto',
+                  flexShrink: 0,
+                }}
+              >
+                匹配 <strong style={{ color: '#ffd966' }}>{filteredCards.length}</strong> /{' '}
+                {cards.length} 张
+              </span>
+            </div>
+
+            {/* 高级筛选 */}
+            {advancedOpen && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: 8,
+                  paddingTop: 4,
+                }}
+              >
+                <SelectFilter
+                  label="种族"
+                  value={filter.minion_type_id}
+                  options={uniqueMinionTypes.map((id) => ({
+                    value: id,
+                    label: MinionTypes[id as keyof typeof MinionTypes] || id,
+                  }))}
+                  onChange={(v) => setFilter((prev) => ({ ...prev, minion_type_id: v }))}
+                />
+                <SelectFilter
+                  label="稀有度"
+                  value={filter.rarity_id}
+                  options={uniqueRarities.map((id) => ({
+                    value: id,
+                    label: Rarities[id as keyof typeof Rarities] || id,
+                  }))}
+                  onChange={(v) => setFilter((prev) => ({ ...prev, rarity_id: v }))}
+                />
+                <SelectFilter
+                  label="系列"
+                  value={filter.card_set_id}
+                  options={uniqueSets.map((id) => ({
+                    value: id,
+                    label: Series[String(id) as keyof typeof Series] || String(id),
+                  }))}
+                  onChange={(v) => setFilter((prev) => ({ ...prev, card_set_id: v }))}
+                />
+                <SelectFilter
+                  label="攻击力"
+                  value={filter.attack}
+                  options={Array.from(new Set(cards.map((c) => c.attack || 0)))
+                    .sort((a, b) => a - b)
+                    .map((a) => ({ value: a, label: String(a) }))}
+                  onChange={(v) => setFilter((prev) => ({ ...prev, attack: v }))}
+                />
+                <SelectFilter
+                  label="生命值"
+                  value={filter.health}
+                  options={Array.from(new Set(cards.map((c) => c.health)))
+                    .sort((a, b) => a - b)
+                    .map((h) => ({ value: h, label: String(h) }))}
+                  onChange={(v) => setFilter((prev) => ({ ...prev, health: v }))}
+                />
+              </div>
+            )}
+          </>
         )}
 
         {/* 排除条件标签 */}
@@ -685,7 +771,7 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
           flex: 1,
           minHeight: 0,
           overflowY: 'auto',
-          padding: 12,
+          padding: isMobile ? 8 : 12,
           background: 'rgba(42, 31, 23, 0.35)',
           border: '2px solid #5a3a1a',
           borderRadius: 8,
@@ -695,8 +781,10 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: 12,
+            gridTemplateColumns: isMobile
+              ? 'repeat(auto-fill, minmax(140px, 1fr))'
+              : 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: isMobile ? 8 : 12,
             alignContent: 'start',
           }}
         >
@@ -723,6 +811,312 @@ export const CardSelector: React.FC<CardSelectorProps> = ({
           )}
         </div>
       </div>
+
+      {/* 移动端筛选弹窗 */}
+      {isMobile && mobileFilterOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="筛选条件"
+          onClick={() => setMobileFilterOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.65)',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            zIndex: 1000,
+            animation: 'hs-fade-in 0.18s ease-out',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'linear-gradient(to bottom, #3a2c1f, #2a1f17)',
+              border: '2px solid #5a3a1a',
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              width: '100%',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              color: '#f4e4bc',
+              boxShadow: '0 -8px 24px rgba(0,0,0,0.5)',
+              animation: 'hs-pop-in 0.22s ease-out',
+            }}
+          >
+            {/* 弹窗标题栏 */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 16px 10px 16px',
+                borderBottom: '1px solid #5a3a1a',
+                flexShrink: 0,
+              }}
+            >
+              <strong style={{ fontSize: 15, color: '#ffd966' }}>🎯 筛选条件</strong>
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                aria-label="关闭"
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #5a3a1a',
+                  color: '#f4e4bc',
+                  borderRadius: 12,
+                  padding: '4px 12px',
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                完成
+              </button>
+            </div>
+
+            {/* 弹窗内容（可滚动） */}
+            <div
+              style={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                padding: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 14,
+              }}
+            >
+              {/* 按名称搜索 */}
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#ffd966',
+                    marginBottom: 8,
+                    letterSpacing: 1,
+                  }}
+                >
+                  按名称搜索
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: '#1a1208',
+                    border: '1px solid #5a3a1a',
+                    borderRadius: 14,
+                    padding: '0 4px 0 10px',
+                  }}
+                >
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="输入卡牌名称或描述关键词..."
+                    style={{
+                      flex: 1,
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      color: '#f4e4bc',
+                      fontSize: 13,
+                      padding: '8px 4px',
+                    }}
+                  />
+                  {search && (
+                    <button
+                      onClick={() => setSearch('')}
+                      aria-label="清除搜索"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#a08a6a',
+                        cursor: 'pointer',
+                        padding: '0 8px',
+                        fontSize: 18,
+                        lineHeight: 1,
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 职业 */}
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#ffd966',
+                    marginBottom: 8,
+                    letterSpacing: 1,
+                  }}
+                >
+                  职业
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 6,
+                  }}
+                >
+                  <button
+                    onClick={() => handleClassToggle('')}
+                    style={filter.class_id === null ? chipActive : chipBase}
+                  >
+                    全部
+                  </button>
+                  {classIds.map((id) => (
+                    <button
+                      key={id}
+                      onClick={() => handleClassToggle(id)}
+                      style={filter.class_id === id ? chipActive : chipBase}
+                    >
+                      {Classes[id]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 水晶 */}
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#ffd966',
+                    marginBottom: 8,
+                    letterSpacing: 1,
+                  }}
+                >
+                  水晶
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  {manaChips.map((c) => (
+                    <div
+                      key={c.value}
+                      onClick={() => handleManaToggle(c.value)}
+                      style={filter.mana_cost === c.value ? manaChipActive : manaChipBase}
+                    >
+                      {c.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 高级筛选 */}
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#ffd966',
+                    marginBottom: 8,
+                    letterSpacing: 1,
+                  }}
+                >
+                  高级筛选
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 10,
+                  }}
+                >
+                  <SelectFilter
+                    label="种族"
+                    value={filter.minion_type_id}
+                    options={uniqueMinionTypes.map((id) => ({
+                      value: id,
+                      label: MinionTypes[id as keyof typeof MinionTypes] || id,
+                    }))}
+                    onChange={(v) => setFilter((prev) => ({ ...prev, minion_type_id: v }))}
+                  />
+                  <SelectFilter
+                    label="稀有度"
+                    value={filter.rarity_id}
+                    options={uniqueRarities.map((id) => ({
+                      value: id,
+                      label: Rarities[id as keyof typeof Rarities] || id,
+                    }))}
+                    onChange={(v) => setFilter((prev) => ({ ...prev, rarity_id: v }))}
+                  />
+                  <SelectFilter
+                    label="系列"
+                    value={filter.card_set_id}
+                    options={uniqueSets.map((id) => ({
+                      value: id,
+                      label: Series[String(id) as keyof typeof Series] || String(id),
+                    }))}
+                    onChange={(v) => setFilter((prev) => ({ ...prev, card_set_id: v }))}
+                  />
+                  <SelectFilter
+                    label="攻击力"
+                    value={filter.attack}
+                    options={Array.from(new Set(cards.map((c) => c.attack || 0)))
+                      .sort((a, b) => a - b)
+                      .map((a) => ({ value: a, label: String(a) }))}
+                    onChange={(v) => setFilter((prev) => ({ ...prev, attack: v }))}
+                  />
+                  <SelectFilter
+                    label="生命值"
+                    value={filter.health}
+                    options={Array.from(new Set(cards.map((c) => c.health)))
+                      .sort((a, b) => a - b)
+                      .map((h) => ({ value: h, label: String(h) }))}
+                    onChange={(v) => setFilter((prev) => ({ ...prev, health: v }))}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 弹窗底部操作栏 */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 10,
+                padding: 12,
+                borderTop: '1px solid #5a3a1a',
+                background: 'rgba(0,0,0,0.25)',
+                flexShrink: 0,
+              }}
+            >
+              {canAutoFilter && (
+                <button
+                  onClick={handleAutoFilter}
+                  style={{
+                    ...autoFilterBtn,
+                    flex: 1,
+                    justifyContent: 'center',
+                    padding: '8px 14px',
+                    fontSize: 14,
+                  }}
+                >
+                  一键过滤
+                </button>
+              )}
+              <button
+                onClick={resetFilter}
+                style={{
+                  ...chipBase,
+                  flex: 1,
+                  padding: '8px 12px',
+                  fontSize: 13,
+                  justifyContent: 'center',
+                }}
+              >
+                清除过滤
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
